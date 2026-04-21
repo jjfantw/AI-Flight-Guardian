@@ -23,6 +23,28 @@
       "max_duration_hours": 24,
       "alert_threshold_price": 25000,
       "active": true
+    },
+    {
+      "id": "task-1776758877975",
+      "name": "Kyoto Momiji 2026",
+      "origin": [
+        "TPE"
+      ],
+      "destination": [
+        "KIX"
+      ],
+      "departure_date_range": [
+        "2026-11-21",
+        "2026-11-29"
+      ],
+      "trip_duration_days": [
+        10,
+        14
+      ],
+      "max_stops": 1,
+      "max_duration_hours": 24,
+      "alert_threshold_price": 30000,
+      "active": true
     }
   ]
 }
