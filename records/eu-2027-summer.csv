@@ -1,0 +1,2 @@
+timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest
+2026-04-21T01:28:20.503660+00:00,TK (Turkish Airlines),TPE,CDG,2027-06-01,2027-07-15,0,15h55m,22794,TWD,False

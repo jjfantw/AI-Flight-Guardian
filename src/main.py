@@ -1,41 +1,83 @@
 import logging
+import os
 from config import get_active_tasks
 from notifier import TelegramNotifier
+from scraper import FlightScraper
+from hub_analyzer import HubRecommender
+from analyzer import FlightAnalyzer
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
-    logging.info("Starting Phase 1 Mock Verification...")
+    logging.info("Starting up AI Flight Guardian - Phase 2 MVP...")
     
-    # 1. Load active tasks
-    active_tasks = get_active_tasks("../tasks.json") if __name__ != "__main__" else get_active_tasks("tasks.json")
+    # Handle paths for local vs GitHub Action
+    tasks_file = "../tasks.json" if os.path.exists("../tasks.json") else "tasks.json"
+    records_dir = "../records" if os.path.exists("../tasks.json") else "records"
+    
+    active_tasks = get_active_tasks(tasks_file)
     logging.info(f"Loaded {len(active_tasks)} active tasks.")
 
     if not active_tasks:
-        logging.warning("No active tasks found in tasks.json.")
+        logging.warning("No active tasks found.")
         return
 
-    # 2. Format a mock test message based on the tasks retrieved.
-    test_task = active_tasks[0]
-    
-    mock_message_lines = [
-        "✈️ *AI Flight Guardian - Phase 1 verification*",
-        f"✅ Loaded Task config for: `{test_task.get('name')}`",
-        f"📅 Date Range: `{test_task.get('departure_date_range')[0]}` to `{test_task.get('departure_date_range')[1]}`",
-        f"🗺️ Origins: `{', '.join(test_task.get('origin', []))}`",
-        f"🗺️ Destinations: `{', '.join(test_task.get('destination', []))}`",
-        "",
-        "If you see this message, the basic GitHub infrastructure, configuration reading, and notification modules are successfully connected!"
-    ]
-    
-    test_msg = "\n".join(mock_message_lines)
-
-    # 3. Initialize notifier and send message
     notifier = TelegramNotifier()
-    success = notifier.send_message(test_msg)
-    
-    if success:
-        logging.info("Phase 1 verification run finished successfully.")
-    else:
-        logging.error("Phase 1 verification run encountered errors sending notifications.")
+    scraper = FlightScraper()
+    hub_recommender = HubRecommender()
+    analyzer = FlightAnalyzer(records_dir=records_dir)
+
+    for task in active_tasks:
+        origins = task.get("origin", [])
+        dests = task.get("destination", [])
+        dep_date_start = task.get("departure_date_range", [""])[0]
+        ret_date_end = task.get("departure_date_range", ["", ""])[1] if len(task.get("departure_date_range", [])) > 1 else None
+        
+        logging.info(f"Processing Task: {task.get('name')}")
+        
+        # Combine base routes with hub recommendations
+        routes_to_check = []
+        for o in origins:
+            for d in dests:
+                routes_to_check.append((o, d))
+                
+                # Append hub routes
+                hubs = hub_recommender.get_hubs(o, d)
+                for h in hubs:
+                    routes_to_check.append((o, h))  # check origin to hub
+                    
+        # Check all combined routes
+        all_flights = []
+        for o, d in routes_to_check:
+            logging.info(f"Searching flights: {o} -> {d} on {dep_date_start}")
+            flights = scraper.search_flights(o, d, dep_date_start, ret_date_end)
+            all_flights.extend(flights)
+            
+        # Analyze and store
+        if all_flights:
+            # We track the cheapest among the checked routes for MVP
+            is_lowest, cheapest_flight, trend_data = analyzer.process_and_save(
+                task_id=task.get("id"),
+                origin=origins[0], # simplified for MVP
+                dest=dests[0], # simplified for MVP
+                dep_date=dep_date_start,
+                ret_date=ret_date_end,
+                flights=all_flights
+            )
+            
+            # Send Daily Summary
+            notifier.send_daily_summary(task, trend_data)
+            
+            # Send Price Drop Alert
+            threshold = task.get("alert_threshold_price", 0)
+            if is_lowest or cheapest_flight.get("price", float('inf')) <= threshold:
+                logging.info(f"Price Drop or Target Met! Triggering alert for {task.get('name')}")
+                notifier.send_price_drop_alert(task, cheapest_flight)
+        else:
+            logging.warning(f"No flights found for task {task.get('name')}")
+
+    logging.info("Phase 2 Execution Completed.")
 
 if __name__ == "__main__":
     main()
