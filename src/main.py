@@ -32,7 +32,7 @@ def main():
         origins = task.get("origin", [])
         dests = task.get("destination", [])
         dep_date_start = task.get("departure_date_range", [""])[0]
-        ret_date_end = task.get("departure_date_range", ["", ""])[1] if len(task.get("departure_date_range", [])) > 1 else None
+        arr_date_start = task.get("arrive_period", ["", ""])[0] if task.get("arrive_period") else None
         
         logging.info(f"Processing Task: {task.get('name')}")
         
@@ -50,8 +50,8 @@ def main():
         # Check all combined routes
         all_flights = []
         for o, d in routes_to_check:
-            logging.info(f"Searching flights: {o} -> {d} on {dep_date_start}")
-            flights = scraper.search_flights(o, d, dep_date_start, ret_date_end)
+            logging.info(f"Searching flights: {o} -> {d} on {dep_date_start} arriving {arr_date_start}")
+            flights = scraper.search_flights(o, d, dep_date_start, arr_date_start)
             all_flights.extend(flights)
             
         # Analyze and store
@@ -62,7 +62,7 @@ def main():
                 origin=origins[0], # simplified for MVP
                 dest=dests[0], # simplified for MVP
                 dep_date=dep_date_start,
-                ret_date=ret_date_end,
+                ret_date=arr_date_start,
                 flights=all_flights
             )
             
@@ -70,9 +70,8 @@ def main():
             notifier.send_daily_summary(task, trend_data)
             
             # Send Price Drop Alert
-            threshold = task.get("alert_threshold_price", 0)
-            if is_lowest or cheapest_flight.get("price", float('inf')) <= threshold:
-                logging.info(f"Price Drop or Target Met! Triggering alert for {task.get('name')}")
+            if is_lowest:
+                logging.info(f"Price Drop! Triggering alert for {task.get('name')}")
                 notifier.send_price_drop_alert(task, cheapest_flight)
         else:
             logging.warning(f"No flights found for task {task.get('name')}")
