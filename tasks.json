@@ -19,7 +19,7 @@
       ],
       "max_stops": 1,
       "max_duration_hours": 24,
-      "alert_threshold_price": 30000,
+      "alert_threshold_price": 8000,
       "active": true
     }
   ]
