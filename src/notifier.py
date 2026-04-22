@@ -41,23 +41,26 @@ class TelegramNotifier:
 
     def send_daily_summary(self, task: dict, trend_data: dict) -> bool:
         """Sends a daily summary of the market trends for a task."""
+        search_url = trend_data.get("search_url", "https://www.google.com/travel/flights")
         msg = (
             f"📊 *Flight Guardian Daily Summary*\n"
             f"**Task**: `{task.get('name')}`\n"
             f"💰 Today's Lowest: `{trend_data.get('today_lowest')} TWD`\n"
             f"📉 Hist. Lowest: `{trend_data.get('historical_lowest')} TWD`\n"
             f"📊 Hist. Average: `{trend_data.get('historical_avg', 0):.0f} TWD`"
+            f"\n\n[👉 Go to Google Flights]({search_url})"
         )
         return self.send_message(msg)
 
     def send_price_drop_alert(self, task: dict, flight_data: dict) -> bool:
         """Sends an urgent low price drop alert."""
+        search_url = flight_data.get("search_url", "https://www.google.com/travel/flights")
         msg = (
             f"🚨 *PRICE DROP ALERT!* 🚨\n"
             f"**Task**: `{task.get('name')}`\n"
             f"✈️ Airline: {flight_data.get('airline')}\n"
             f"💰 Price: `{flight_data.get('price')} TWD` (Historical Low!)\n"
             f"⏱️ Duration: {flight_data.get('duration_outbound')} with {flight_data.get('stops')} stops\n\n"
-            f"[👉 Go to Google Flights](https://www.google.com/travel/flights)"
+            f"[👉 Go to Google Flights]({search_url})"
         )
         return self.send_message(msg)

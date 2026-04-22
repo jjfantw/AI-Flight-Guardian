@@ -53,7 +53,8 @@ class FlightAnalyzer:
             "duration_outbound": cheapest_today.get("duration"),
             "price": cheapest_today.get("price"),
             "currency": cheapest_today.get("currency"),
-            "is_lowest": is_lowest
+            "is_lowest": is_lowest,
+            "search_url": cheapest_today.get("search_url")
         }
         
         new_df = pd.DataFrame([new_row])
@@ -67,7 +68,8 @@ class FlightAnalyzer:
             "today_lowest": cheapest_today['price'],
             "historical_lowest": historical_min_price if historical_min_price != float('inf') else cheapest_today['price'],
             "historical_avg": avg_price if avg_price > 0 else cheapest_today['price'],
-            "historical_lowest_diff": cheapest_today['price'] - historical_min_price if historical_min_price != float('inf') else 0
+            "historical_lowest_diff": cheapest_today['price'] - historical_min_price if historical_min_price != float('inf') else 0,
+            "search_url": cheapest_today.get("search_url")
         }
             
         return is_lowest, new_row, trend_data

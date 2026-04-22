@@ -48,6 +48,9 @@ class FlightScraper:
         best_flights = data.get("best_flights", [])
         other_flights = data.get("other_flights", [])
         
+        # Capture the search result URL from metadata
+        search_url = data.get("google_flights_url", "https://www.google.com/travel/flights")
+        
         for flight in best_flights + other_flights:
             try:
                 price = flight.get("price", 0)
@@ -66,7 +69,8 @@ class FlightScraper:
                     "price": price,
                     "stops": num_stops,
                     "duration": duration_str,
-                    "currency": "TWD"
+                    "currency": "TWD",
+                    "search_url": search_url
                 })
             except Exception as e:
                 logging.warning(f"Error parsing a flight result: {e}")
@@ -75,12 +79,17 @@ class FlightScraper:
 
     def _get_mock_data(self, origin, destination, dep_date, ret_date) -> list[dict]:
         # Returns semi-realistic mock data
+        mock_url = f"https://www.google.com/travel/flights?q=Flights%20from%20{origin}%20to%20{destination}%20on%20{dep_date}"
+        if ret_date:
+            mock_url += f"%20returning%20{ret_date}"
+            
         return [
             {
                 "airline": random.choice(["EK (Emirates)", "BR (EVA Air)", "CI (China Airlines)", "TK (Turkish Airlines)"]),
                 "price": random.randint(22000, 45000),
                 "stops": random.randint(0, 2),
                 "duration": f"{random.randint(12, 20)}h{random.randint(0, 59)}m",
-                "currency": "TWD"
+                "currency": "TWD",
+                "search_url": mock_url
             } for _ in range(3)
         ]
