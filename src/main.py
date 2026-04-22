@@ -67,7 +67,7 @@ def main():
             )
             
             # Send Daily Summary
-            notifier.send_daily_summary(task, trend_data)
+            notifier.send_daily_summary(task, trend_data, is_lowest)
             
             # Send Price Drop Alert
             if is_lowest:
@@ -75,6 +75,14 @@ def main():
                 notifier.send_price_drop_alert(task, cheapest_flight)
         else:
             logging.warning(f"No flights found for task {task.get('name')}")
+            trend_data = analyzer.save_empty_record(
+                task_id=task.get("id"),
+                origin=origins[0],
+                dest=dests[0],
+                dep_date=dep_date_start,
+                ret_date=arr_date_start
+            )
+            notifier.send_no_flights_summary(task, trend_data)
 
     logging.info("Phase 2 Execution Completed.")
 

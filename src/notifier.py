@@ -39,16 +39,32 @@ class TelegramNotifier:
                 logging.error(f"Response: {e.response.text}")
             return False
 
-    def send_daily_summary(self, task: dict, trend_data: dict) -> bool:
+    def send_daily_summary(self, task: dict, trend_data: dict, is_lowest: bool = False) -> bool:
         """Sends a daily summary of the market trends for a task."""
         search_url = trend_data.get("search_url", "https://www.google.com/travel/flights")
+        
+        alarm_prefix = "🚨 *[ALARM: 創新低價！]* 🚨\n" if is_lowest else ""
+        
         msg = (
-            f"📊 *Flight Guardian Daily Summary*\n"
+            f"{alarm_prefix}📊 *Flight Guardian Daily Summary*\n"
             f"**Task**: `{task.get('name')}`\n"
             f"💰 Today's Lowest: `{trend_data.get('today_lowest')} TWD`\n"
+            f"📈 Hist. Highest: `{trend_data.get('historical_highest')} TWD`\n"
             f"📉 Hist. Lowest: `{trend_data.get('historical_lowest')} TWD`\n"
             f"📊 Hist. Average: `{trend_data.get('historical_avg', 0):.0f} TWD`"
             f"\n\n[👉 Go to Google Flights]({search_url})"
+        )
+        return self.send_message(msg)
+
+    def send_no_flights_summary(self, task: dict, trend_data: dict) -> bool:
+        """Sends a summary indicating no flights were found."""
+        msg = (
+            f"📭 *Flight Guardian Daily Summary*\n"
+            f"**Task**: `{task.get('name')}`\n"
+            f"⚠️ *本日無符合條件之機票進場*\n"
+            f"📈 Hist. Highest: `{trend_data.get('historical_highest')} TWD`\n"
+            f"📉 Hist. Lowest: `{trend_data.get('historical_lowest')} TWD`\n"
+            f"📊 Hist. Average: `{trend_data.get('historical_avg', 0):.0f} TWD`"
         )
         return self.send_message(msg)
 
