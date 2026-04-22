@@ -33,11 +33,11 @@
       ],
       "departure_date_range": [
         "2027-04-02",
-        "2027-04-11"
+        "2027-04-03"
       ],
       "trip_duration_days": [
-        10,
-        14
+        7,
+        11
       ],
       "max_stops": 1,
       "max_duration_hours": 24,
