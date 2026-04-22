@@ -21,6 +21,28 @@
       "max_duration_hours": 24,
       "alert_threshold_price": 8000,
       "active": true
+    },
+    {
+      "id": "task-1776832995563",
+      "name": "2027 Sakura",
+      "origin": [
+        "TPE"
+      ],
+      "destination": [
+        "KIX"
+      ],
+      "departure_date_range": [
+        "2027-04-02",
+        "2027-04-11"
+      ],
+      "trip_duration_days": [
+        10,
+        14
+      ],
+      "max_stops": 1,
+      "max_duration_hours": 24,
+      "alert_threshold_price": 10000,
+      "active": true
     }
   ]
 }
