@@ -90,3 +90,39 @@ export const commitTasks = async (tasksData) => {
     sha,
   });
 };
+
+export const fetchWorkflow = async () => {
+  const { token, owner, repo } = getCredentials();
+  if (!token) return null; // Requires auth
+
+  const octokit = new Octokit({ auth: token });
+  try {
+    const response = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: '.github/workflows/scraper.yml',
+    });
+    const parsed = decodeURIComponent(escape(atob(response.data.content)));
+    return { content: parsed, sha: response.data.sha };
+  } catch (e) {
+    console.error("Failed to fetch workflow:", e);
+    return null;
+  }
+};
+
+export const commitWorkflow = async (workflowContent, sha) => {
+  const { token, owner, repo } = getCredentials();
+  if (!token) throw new Error("GitHub PAT is required.");
+  
+  const octokit = new Octokit({ auth: token });
+  const encodedContent = btoa(unescape(encodeURIComponent(workflowContent)));
+  
+  await octokit.rest.repos.createOrUpdateFileContents({
+    owner,
+    repo,
+    path: '.github/workflows/scraper.yml',
+    message: 'chore: update scrap schedule times via Dashboard',
+    content: encodedContent,
+    sha,
+  });
+};

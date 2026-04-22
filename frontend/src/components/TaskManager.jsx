@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Plus, Trash2, Edit2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Settings, Plus, Trash2, Edit2, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import { fetchTasks, commitTasks } from '../lib/github';
+import ScheduleManager from './ScheduleManager';
 
 export default function TaskManager({ onOpenSettings }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [showSchedule, setShowSchedule] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -94,6 +96,9 @@ export default function TaskManager({ onOpenSettings }) {
           <h2>Manage Tracking Tasks</h2>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn-secondary" onClick={() => setShowSchedule(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+             <Clock size={16} /> 排程設定
+          </button>
           <button className="btn-secondary" onClick={onOpenSettings}>
              GitHub Config
           </button>
@@ -104,6 +109,8 @@ export default function TaskManager({ onOpenSettings }) {
           )}
         </div>
       </div>
+      
+      {showSchedule && <ScheduleManager onClose={() => setShowSchedule(false)} />}
       
       {error && (
         <div className="glass-panel" style={{ padding: '1rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger-color)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
