@@ -10,12 +10,12 @@
         "KIX"
       ],
       "departure_date_range": [
-        "2026-11-21",
-        "2026-11-29"
+        "2026-11-20",
+        "2026-11-21"
       ],
       "trip_duration_days": [
-        10,
-        14
+        7,
+        11
       ],
       "max_stops": 1,
       "max_duration_hours": 24,
