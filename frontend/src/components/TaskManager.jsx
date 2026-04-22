@@ -78,10 +78,9 @@ export default function TaskManager({ onOpenSettings }) {
       origin: [],
       destination: [],
       departure_date_range: ['', ''],
-      trip_duration_days: [10, 14],
+      arrive_period: ['', ''],
       max_stops: 1,
       max_duration_hours: 24,
-      alert_threshold_price: 30000,
       active: true
     });
   };
@@ -161,17 +160,18 @@ export default function TaskManager({ onOpenSettings }) {
                   <div>{task.origin.join(',')} → {task.destination.join(',')}</div>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Dates</span>
-                  <div>{task.departure_date_range[0]} - {task.departure_date_range[1]}</div>
+                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Departure</span>
+                  <div>{task.departure_date_range[0]} to {task.departure_date_range[1]}</div>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Arrival</span>
+                  <div>{task.arrive_period[0]} to {task.arrive_period[1]}</div>
                 </div>
                 <div>
                   <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Limits</span>
                   <div>Max {task.max_stops} stops, &lt;{task.max_duration_hours}h</div>
                 </div>
-                <div>
-                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Alert &lt;</span>
-                  <div>{task.alert_threshold_price.toLocaleString()} TWD</div>
-                </div>
+                <div></div>
               </div>
             </div>
           ))}
@@ -248,11 +248,11 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
           </div>
         </div>
         <div>
-          <label>Trip Duration (Days)</label>
+          <label>Arrive Period</label>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <input type="number" value={formData.trip_duration_days[0]} onChange={e => handleRangeChange('trip_duration_days', 0, e.target.value)} />
+            <input type="date" value={formData.arrive_period[0]} onChange={e => handleRangeChange('arrive_period', 0, e.target.value)} />
             <span style={{ color: 'var(--text-tertiary)' }}>to</span>
-            <input type="number" value={formData.trip_duration_days[1]} onChange={e => handleRangeChange('trip_duration_days', 1, e.target.value)} />
+            <input type="date" value={formData.arrive_period[1]} onChange={e => handleRangeChange('arrive_period', 1, e.target.value)} />
           </div>
         </div>
       </div>
@@ -270,16 +270,13 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
       
       <div className="grid-2" style={{ marginBottom: '2rem' }}>
         <div>
-          <label>Target Budget (Alert Threshold)</label>
-          <input type="number" value={formData.alert_threshold_price} onChange={e => handleChange('alert_threshold_price', Number(e.target.value))} />
-        </div>
-        <div>
           <label>Status</label>
           <select value={formData.active ? 'active' : 'paused'} onChange={e => handleChange('active', e.target.value === 'active')}>
             <option value="active">Active Monitoring</option>
             <option value="paused">Paused</option>
           </select>
         </div>
+        <div></div>
       </div>
       
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid var(--panel-border)', paddingTop: '1.5rem' }}>

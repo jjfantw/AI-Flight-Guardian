@@ -13,13 +13,12 @@
         "2026-11-20",
         "2026-11-21"
       ],
-      "trip_duration_days": [
-        7,
-        11
+      "arrive_period": [
+        "2026-12-01",
+        "2026-12-13"
       ],
       "max_stops": 1,
       "max_duration_hours": 24,
-      "alert_threshold_price": 8000,
       "active": true
     },
     {
@@ -35,13 +34,12 @@
         "2027-04-02",
         "2027-04-03"
       ],
-      "trip_duration_days": [
-        7,
-        11
+      "arrive_period": [
+        "2027-04-09",
+        "2027-04-14"
       ],
       "max_stops": 1,
       "max_duration_hours": 24,
-      "alert_threshold_price": 10000,
       "active": true
     }
   ]
