@@ -79,9 +79,10 @@ class FlightScraper:
 
     def _get_mock_data(self, origin, destination, dep_date, ret_date) -> list[dict]:
         # Returns semi-realistic mock data
-        mock_url = f"https://www.google.com/travel/flights?q=Flights%20from%20{origin}%20to%20{destination}%20on%20{dep_date}"
+        # Using Google Search query format as it's more reliable for pre-filling criteria than direct Flights URL without tfs
+        mock_url = f"https://www.google.com/search?q=flights+from+{origin}+to+{destination}+on+{dep_date}"
         if ret_date:
-            mock_url += f"%20returning%20{ret_date}"
+            mock_url += f"+to+{ret_date}"
             
         return [
             {

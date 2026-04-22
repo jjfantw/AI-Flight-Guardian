@@ -1,2 +1,4 @@
 timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest
 2026-04-21T01:28:20.503660+00:00,TK (Turkish Airlines),TPE,CDG,2027-06-01,2027-07-15,0,15h55m,22794,TWD,False
+2026-04-22T02:14:39.427293+00:00,EK (Emirates),TPE,CDG,2027-06-01,2027-07-15,0,18h4m,23399,TWD,False,https://www.google.com/travel/flights?q=Flights%20from%20TPE%20to%20DXB%20on%202027-06-01%20returning%202027-07-15
+2026-04-22T02:23:15.256534+00:00,CI (China Airlines),TPE,CDG,2027-06-01,2027-07-15,0,19h21m,22597,TWD,False,https://www.google.com/search?q=flights+from+TPE+to+BKK+on+2027-06-01+to+2027-07-15
