@@ -160,11 +160,11 @@ export default function TaskManager({ onOpenSettings }) {
                   <div>{task.origin.join(',')} → {task.destination.join(',')}</div>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Departure</span>
+                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Outbound</span>
                   <div>{task.departure_date_range[0]} to {task.departure_date_range[1]}</div>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Arrival</span>
+                  <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Inbound</span>
                   <div>{task.arrive_period[0]} to {task.arrive_period[1]}</div>
                 </div>
                 <div>
@@ -195,9 +195,47 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
   };
   
   const handleRangeChange = (field, idx, value) => {
-    const newRange = [...formData[field]];
-    newRange[idx] = field.includes('date') ? value : Number(value);
-    handleChange(field, newRange);
+    let newFormData = { ...formData };
+    const isDate = field.includes('date') || field.includes('period');
+    
+    const currentRange = newFormData[field] || ['', ''];
+    let newRange = [...currentRange];
+    
+    if (isDate) {
+      newRange[idx] = value;
+      
+      // Auto-fix same period dates
+      if (idx === 0) { // Start date changed
+        if (!newRange[1] || newRange[1] < value) newRange[1] = value;
+      } else if (idx === 1) { // End date changed
+        if (!newRange[0] || newRange[0] > value) newRange[0] = value;
+      }
+      newFormData[field] = newRange;
+      
+      // Auto-fix cross-period dates
+      if (field === 'departure_date_range') {
+        const depEnd = newRange[1] || newRange[0];
+        if (depEnd) {
+          let arrRange = [...(newFormData.arrive_period || ['', ''])];
+          if (!arrRange[0] || arrRange[0] < depEnd) arrRange[0] = depEnd;
+          if (!arrRange[1] || arrRange[1] < depEnd) arrRange[1] = depEnd;
+          newFormData.arrive_period = arrRange;
+        }
+      } else if (field === 'arrive_period') {
+        const arrStart = newRange[0] || newRange[1];
+        if (arrStart) {
+          let depRange = [...(newFormData.departure_date_range || ['', ''])];
+          if (!depRange[0] || depRange[0] > arrStart) depRange[0] = arrStart;
+          if (!depRange[1] || depRange[1] > arrStart) depRange[1] = arrStart;
+          newFormData.departure_date_range = depRange;
+        }
+      }
+    } else {
+      newRange[idx] = Number(value);
+      newFormData[field] = newRange;
+    }
+    
+    setFormData(newFormData);
   };
 
   return (
@@ -240,7 +278,7 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
       
       <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
         <div>
-          <label>Departure Period</label>
+          <label>Outbound Departure Dates</label>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <input type="date" value={formData.departure_date_range[0]} onChange={e => handleRangeChange('departure_date_range', 0, e.target.value)} />
             <span style={{ color: 'var(--text-tertiary)' }}>to</span>
@@ -248,7 +286,7 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
           </div>
         </div>
         <div>
-          <label>Arrive Period</label>
+          <label>Inbound Departure Dates</label>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <input type="date" value={formData.arrive_period[0]} onChange={e => handleRangeChange('arrive_period', 0, e.target.value)} />
             <span style={{ color: 'var(--text-tertiary)' }}>to</span>
