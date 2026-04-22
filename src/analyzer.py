@@ -14,7 +14,7 @@ class FlightAnalyzer:
         Returns: (is_lowest, cheapest_flight, market_trend_data)
         """
         if not flights:
-            return False, {}, {}
+            return False, {}, self.save_empty_record(task_id, origin, dest, dep_date, ret_date)
             
         csv_path = os.path.join(self.records_dir, f"{task_id}.csv")
         
@@ -24,13 +24,17 @@ class FlightAnalyzer:
         
         # Load history
         historical_min_price = float('inf')
+        historical_max_price = 0
         avg_price = 0
         if os.path.exists(csv_path):
             try:
                 df = pd.read_csv(csv_path)
                 if not df.empty and 'price' in df.columns:
-                    historical_min_price = df['price'].min()
-                    avg_price = df['price'].mean()
+                    valid_prices = pd.to_numeric(df['price'], errors='coerce').dropna()
+                    if not valid_prices.empty:
+                        historical_min_price = valid_prices.min()
+                        historical_max_price = valid_prices.max()
+                        avg_price = valid_prices.mean()
             except Exception as e:
                 logging.error(f"Error reading {csv_path}: {e}")
         
@@ -67,9 +71,65 @@ class FlightAnalyzer:
         trend_data = {
             "today_lowest": cheapest_today['price'],
             "historical_lowest": historical_min_price if historical_min_price != float('inf') else cheapest_today['price'],
+            "historical_highest": historical_max_price if historical_max_price > 0 else cheapest_today['price'],
             "historical_avg": avg_price if avg_price > 0 else cheapest_today['price'],
             "historical_lowest_diff": cheapest_today['price'] - historical_min_price if historical_min_price != float('inf') else 0,
             "search_url": cheapest_today.get("search_url")
         }
             
         return is_lowest, new_row, trend_data
+
+    def save_empty_record(self, task_id: str, origin: str, dest: str, dep_date: str, ret_date: str) -> dict:
+        """
+        Saves a dummy record indicating no flights were found for this timeframe to prevent chart disconnects.
+        Returns the historical trend data.
+        """
+        csv_path = os.path.join(self.records_dir, f"{task_id}.csv")
+        
+        # Load history
+        historical_min_price = float('inf')
+        historical_max_price = 0
+        avg_price = 0
+        if os.path.exists(csv_path):
+            try:
+                df = pd.read_csv(csv_path)
+                if not df.empty and 'price' in df.columns:
+                    valid_prices = pd.to_numeric(df['price'], errors='coerce').dropna()
+                    if not valid_prices.empty:
+                        historical_min_price = valid_prices.min()
+                        historical_max_price = valid_prices.max()
+                        avg_price = valid_prices.mean()
+            except Exception as e:
+                logging.error(f"Error reading {csv_path}: {e}")
+                
+        timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        
+        new_row = {
+            "timestamp": timestamp,
+            "airline": "",
+            "origin": origin,
+            "destination": dest,
+            "departure_date": dep_date,
+            "return_date": ret_date,
+            "stops": "",
+            "duration_outbound": "",
+            "price": "", # empty to act as null in CSV
+            "currency": "TWD",
+            "is_lowest": False,
+            "search_url": ""
+        }
+        
+        new_df = pd.DataFrame([new_row])
+        if os.path.exists(csv_path):
+            new_df.to_csv(csv_path, mode='a', header=False, index=False)
+        else:
+            new_df.to_csv(csv_path, mode='w', header=True, index=False)
+            
+        return {
+            "today_lowest": 0,
+            "historical_lowest": historical_min_price if historical_min_price != float('inf') else 0,
+            "historical_highest": historical_max_price,
+            "historical_avg": avg_price,
+            "historical_lowest_diff": 0,
+            "search_url": ""
+        }
