@@ -1,0 +1,3 @@
+timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest,search_url
+2026-04-23T00:50:57.704066+00:00,CI (China Airlines),TPE,KIX,2027-04-02,2027-04-09,2,18h37m,28232,TWD,False,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2027-04-02+to+2027-04-09
+2026-04-23T00:58:19.907369+00:00,TK (Turkish Airlines),TPE,KIX,2027-04-02,2027-04-09,1,17h25m,22659,TWD,True,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2027-04-02+to+2027-04-09

@@ -29,14 +29,14 @@ class TelegramNotifier:
         }
 
         try:
-            response = requests.post(url, json=payload, timeout=10)
-            response.raise_for_status()
+            response = requests.post(url, json=payload, timeout=15)
+            if response.status_code != 200:
+                logging.error(f"Telegram API Error (Status {response.status_code}): {response.text}")
+                return False
             logging.info("Telegram message sent successfully.")
             return True
         except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to send Telegram message: {e}")
-            if e.response is not None:
-                logging.error(f"Response: {e.response.text}")
+            logging.error(f"Network error while sending Telegram message: {e}")
             return False
 
     def send_daily_summary(self, task: dict, trend_data: dict, is_lowest: bool = False) -> bool:

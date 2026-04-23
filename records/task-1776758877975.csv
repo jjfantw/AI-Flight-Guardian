@@ -1,3 +1,5 @@
 timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest,search_url
 2026-04-22T02:14:39.429067+00:00,EK (Emirates),TPE,KIX,2026-11-21,2026-11-29,1,15h32m,35035,TWD,False,https://www.google.com/travel/flights?q=Flights%20from%20TPE%20to%20KIX%20on%202026-11-21%20returning%202026-11-29
 2026-04-22T02:23:15.266823+00:00,CI (China Airlines),TPE,KIX,2026-11-21,2026-11-29,0,19h32m,25588,TWD,True,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2026-11-21+to+2026-11-29
+2026-04-23T00:50:57.701977+00:00,TK (Turkish Airlines),TPE,KIX,2026-11-20,2026-12-01,0,18h58m,29228,TWD,False,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2026-11-20+to+2026-12-01
+2026-04-23T00:58:19.904528+00:00,BR (EVA Air),TPE,KIX,2026-11-20,2026-12-01,0,16h12m,24571,TWD,True,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2026-11-20+to+2026-12-01
