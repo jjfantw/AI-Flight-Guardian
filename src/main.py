@@ -7,6 +7,7 @@ from notifier import TelegramNotifier
 from scraper import FlightScraper
 from hub_analyzer import HubRecommender
 from analyzer import FlightAnalyzer
+from datetime import datetime, timedelta
 
 # Setup logging
 logging.basicConfig(
@@ -64,27 +65,50 @@ def main():
                     logging.warning(f"Skipping task '{task_name}': Missing origin or destination.")
                     continue
 
-                dep_date_start = task.get("departure_date_range", [""])[0]
-                # Default to None if not present
-                arr_period = task.get("arrive_period")
-                arr_date_start = arr_period[0] if (arr_period and len(arr_period) > 0) else None
-                
+                # Prepare date combinations
+                base_dep_date = task.get("departure_date")
+                base_ret_date = task.get("return_date")
+                expand_days = task.get("expand_days", 0)
+
+                # Fallback for old schema
+                if not base_dep_date:
+                    base_dep_date = task.get("departure_date_range", [""])[0]
+                if not base_ret_date:
+                    arr_period = task.get("arrive_period", [])
+                    base_ret_date = arr_period[0] if arr_period else None
+
+                date_pairs = []
+                if base_dep_date:
+                    dep_dt = datetime.strptime(base_dep_date, "%Y-%m-%d")
+                    ret_dt = datetime.strptime(base_ret_date, "%Y-%m-%d") if base_ret_date else None
+                    
+                    for d_off in range(-expand_days, expand_days + 1):
+                        curr_dep = (dep_dt + timedelta(days=d_off)).strftime("%Y-%m-%d")
+                        
+                        if ret_dt:
+                            for r_off in range(-expand_days, expand_days + 1):
+                                curr_ret = (ret_dt + timedelta(days=r_off)).strftime("%Y-%m-%d")
+                                if curr_ret >= curr_dep:
+                                    date_pairs.append((curr_dep, curr_ret))
+                        else:
+                            date_pairs.append((curr_dep, None))
+
                 # Combine base routes with hub recommendations
                 routes_to_check = []
                 for o in origins:
                     for d in dests:
                         routes_to_check.append((o, d))
-                        # Append hub routes
                         hubs = hub_recommender.get_hubs(o, d)
                         for h in hubs:
-                            routes_to_check.append((o, h))  # check origin to hub
+                            routes_to_check.append((o, h))
                             
-                # Check all combined routes
+                # Check all combinations
                 all_flights = []
                 for o, d in routes_to_check:
-                    logging.info(f"Searching flights: {o} -> {d} on {dep_date_start} (Return: {arr_date_start})")
-                    flights = scraper.search_flights(o, d, dep_date_start, arr_date_start)
-                    all_flights.extend(flights)
+                    for dep, ret in date_pairs:
+                        logging.info(f"Searching flights: {o} -> {d} on {dep} (Return: {ret})")
+                        flights = scraper.search_flights(o, d, dep, ret)
+                        all_flights.extend(flights)
                     
                 # Analyze and store
                 if all_flights:
@@ -92,8 +116,8 @@ def main():
                         task_id=task.get("id"),
                         origin=origins[0],
                         dest=dests[0],
-                        dep_date=dep_date_start,
-                        ret_date=arr_date_start,
+                        dep_date=base_dep_date,
+                        ret_date=base_ret_date,
                         flights=all_flights
                     )
                     
@@ -111,8 +135,8 @@ def main():
                         task_id=task.get("id"),
                         origin=origins[0],
                         dest=dests[0],
-                        dep_date=dep_date_start,
-                        ret_date=arr_date_start
+                        dep_date=base_dep_date,
+                        ret_date=base_ret_date
                     )
                     notifier.send_no_flights_summary(task, trend_data)
                     

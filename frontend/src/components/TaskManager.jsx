@@ -77,8 +77,9 @@ export default function TaskManager({ onOpenSettings }) {
       name: 'New Flight Plan',
       origin: [],
       destination: [],
-      departure_date_range: ['', ''],
-      arrive_period: ['', ''],
+      departure_date: '',
+      return_date: '',
+      expand_days: 0,
       max_stops: 1,
       max_duration_hours: 24,
       active: true
@@ -161,11 +162,11 @@ export default function TaskManager({ onOpenSettings }) {
                 </div>
                 <div>
                   <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Outbound</span>
-                  <div>{task.departure_date_range[0]} to {task.departure_date_range[1]}</div>
+                  <div>{task.departure_date} {task.expand_days ? `(±1d)` : ''}</div>
                 </div>
                 <div>
                   <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Inbound</span>
-                  <div>{task.arrive_period[0]} to {task.arrive_period[1]}</div>
+                  <div>{task.return_date || 'One-way'} {task.expand_days && task.return_date ? `(±1d)` : ''}</div>
                 </div>
                 <div>
                   <span style={{ color: 'var(--text-tertiary)', textTransform: 'uppercase', fontSize: '0.75rem' }}>Limits</span>
@@ -194,45 +195,14 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
     handleChange(field, arr);
   };
   
-  const handleRangeChange = (field, idx, value) => {
-    let newFormData = { ...formData };
-    const isDate = field.includes('date') || field.includes('period');
+  const handleDateChange = (field, value) => {
+    let newFormData = { ...formData, [field]: value };
     
-    const currentRange = newFormData[field] || ['', ''];
-    let newRange = [...currentRange];
-    
-    if (isDate) {
-      newRange[idx] = value;
-      
-      // Auto-fix same period dates
-      if (idx === 0) { // Start date changed
-        if (!newRange[1] || newRange[1] < value) newRange[1] = value;
-      } else if (idx === 1) { // End date changed
-        if (!newRange[0] || newRange[0] > value) newRange[0] = value;
-      }
-      newFormData[field] = newRange;
-      
-      // Auto-fix cross-period dates
-      if (field === 'departure_date_range') {
-        const depEnd = newRange[1] || newRange[0];
-        if (depEnd) {
-          let arrRange = [...(newFormData.arrive_period || ['', ''])];
-          if (!arrRange[0] || arrRange[0] < depEnd) arrRange[0] = depEnd;
-          if (!arrRange[1] || arrRange[1] < depEnd) arrRange[1] = depEnd;
-          newFormData.arrive_period = arrRange;
-        }
-      } else if (field === 'arrive_period') {
-        const arrStart = newRange[0] || newRange[1];
-        if (arrStart) {
-          let depRange = [...(newFormData.departure_date_range || ['', ''])];
-          if (!depRange[0] || depRange[0] > arrStart) depRange[0] = arrStart;
-          if (!depRange[1] || depRange[1] > arrStart) depRange[1] = arrStart;
-          newFormData.departure_date_range = depRange;
-        }
-      }
-    } else {
-      newRange[idx] = Number(value);
-      newFormData[field] = newRange;
+    // Auto-fix return date if it's before departure
+    if (field === 'departure_date' && newFormData.return_date && newFormData.return_date < value) {
+      newFormData.return_date = value;
+    } else if (field === 'return_date' && newFormData.departure_date && newFormData.departure_date > value) {
+      newFormData.departure_date = value;
     }
     
     setFormData(newFormData);
@@ -276,22 +246,25 @@ function TaskEditor({ task, onSave, onCancel, isSaving }) {
         </div>
       </div>
       
-      <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
+      <div className="grid-3" style={{ marginBottom: '1.5rem' }}>
         <div>
-          <label>Outbound Departure Dates</label>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <input type="date" value={formData.departure_date_range[0]} onChange={e => handleRangeChange('departure_date_range', 0, e.target.value)} />
-            <span style={{ color: 'var(--text-tertiary)' }}>to</span>
-            <input type="date" value={formData.departure_date_range[1]} onChange={e => handleRangeChange('departure_date_range', 1, e.target.value)} />
-          </div>
+          <label>Departure Date</label>
+          <input type="date" value={formData.departure_date || formData.departure_date_range?.[0] || ''} onChange={e => handleDateChange('departure_date', e.target.value)} />
         </div>
         <div>
-          <label>Inbound Departure Dates</label>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <input type="date" value={formData.arrive_period[0]} onChange={e => handleRangeChange('arrive_period', 0, e.target.value)} />
-            <span style={{ color: 'var(--text-tertiary)' }}>to</span>
-            <input type="date" value={formData.arrive_period[1]} onChange={e => handleRangeChange('arrive_period', 1, e.target.value)} />
-          </div>
+          <label>Return Date</label>
+          <input type="date" value={formData.return_date || formData.arrive_period?.[0] || ''} onChange={e => handleDateChange('return_date', e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '0.5rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', margin: 0 }}>
+            <input 
+              type="checkbox" 
+              checked={!!formData.expand_days} 
+              onChange={e => handleChange('expand_days', e.target.checked ? 1 : 0)} 
+              style={{ width: 'auto' }}
+            />
+            <span style={{ fontSize: '0.875rem' }}>彈性日期 (±1天)</span>
+          </label>
         </div>
       </div>
       
