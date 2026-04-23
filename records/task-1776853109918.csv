@@ -1,3 +1,3 @@
-timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest,search_url
-2026-04-23T01:01:09.709015+00:00,,TPE,KIX,2027-04-02,2027-04-11,,,,TWD,False,
-2026-04-23T02:20:11.580962+00:00,,TPE,KIX,2027-04-02,2027-04-11,,,,TWD,False,
+timestamp,airline,return_airline,origin,destination,departure_date,return_date,departure_time,arrival_time,return_departure_time,return_arrival_time,outbound_layovers,return_layovers,stops,duration,price,currency,is_lowest,search_url,booking_token
+2026-04-23T02:36:02.709241+00:00,EK (Emirates),CI (China Airlines),TPE,KIX,2027-04-02,2027-04-11,2027-04-02 08:42,2027-04-02 21:55,2027-04-11 10:48,2027-04-11 23:36,HKG,HKG,1,14h59m,25872,TWD,False,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2027-04-02+to+2027-04-11,mock_token_1967
+2026-04-23T02:36:16.847044+00:00,BR (EVA Air),CI (China Airlines),TPE,KIX,2027-04-02,2027-04-11,2027-04-02 08:36,2027-04-02 21:47,2027-04-11 10:51,2027-04-11 23:37,HKG,,0,20h12m,32686,TWD,False,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2027-04-02+to+2027-04-11,mock_token_1163

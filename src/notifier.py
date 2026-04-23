@@ -52,8 +52,19 @@ class TelegramNotifier:
             f"📈 Hist. Highest: `{trend_data.get('historical_highest')} TWD`\n"
             f"📉 Hist. Lowest: `{trend_data.get('historical_lowest')} TWD`\n"
             f"📊 Hist. Average: `{trend_data.get('historical_avg', 0):.0f} TWD`"
-            f"\n\n[👉 Go to Google Flights]({search_url})"
         )
+        
+        # Add quick look at the best flight if available
+        best_flight = trend_data.get("best_flight_meta") # We might need to pass this in
+        if best_flight:
+            msg += "\n\n✈️ *Latest Best Flight Detail:*\n"
+            msg += f"🛫 去程: {best_flight.get('airline')} ({best_flight.get('departure_time', 'N/A')})\n"
+            if best_flight.get("return_airline"):
+                msg += f"🛬 回程: {best_flight.get('return_airline')} ({best_flight.get('return_departure_time', 'N/A')})\n"
+            if best_flight.get("outbound_layovers") or best_flight.get("return_layovers"):
+                msg += f"🔄 轉機: {best_flight.get('outbound_layovers')} / {best_flight.get('return_layovers')}\n"
+
+        msg += f"\n\n[👉 Go to Google Flights]({search_url})"
         return self.send_message(msg)
 
     def send_no_flights_summary(self, task: dict, trend_data: dict) -> bool:
@@ -71,12 +82,25 @@ class TelegramNotifier:
     def send_price_drop_alert(self, task: dict, flight_data: dict) -> bool:
         """Sends an urgent low price drop alert."""
         search_url = flight_data.get("search_url", "https://www.google.com/travel/flights")
+        
         msg = (
             f"🚨 *PRICE DROP ALERT!* 🚨\n"
-            f"**Task**: `{task.get('name')}`\n"
-            f"✈️ Airline: {flight_data.get('airline')}\n"
+            f"**Task**: `{task.get('name')}`\n\n"
             f"💰 Price: `{flight_data.get('price')} TWD` (Historical Low!)\n"
-            f"⏱️ Duration: {flight_data.get('duration_outbound')} with {flight_data.get('stops')} stops\n\n"
-            f"[👉 Go to Google Flights]({search_url})"
+            f"✈️ *Flight Details:*\n"
+            f"🛫 Outbound: {flight_data.get('airline')} | {flight_data.get('departure_time')}\n"
         )
+        
+        if flight_data.get("return_airline"):
+            msg += f"🛬 Return: {flight_data.get('return_airline')} | {flight_data.get('return_departure_time')}\n"
+            
+        if flight_data.get("outbound_layovers") or flight_data.get("return_layovers"):
+             msg += f"🔄 Layovers: {flight_data.get('outbound_layovers')} / {flight_data.get('return_layovers')}\n"
+             
+        msg += f"⏱️ Total Duration: {flight_data.get('duration')}\n"
+        
+        if flight_data.get("booking_token"):
+            msg += f"🎫 Booking Token: `{flight_data.get('booking_token')[:10]}...`\n"
+            
+        msg += f"\n[👉 Book on Google Flights]({search_url})"
         return self.send_message(msg)

@@ -136,41 +136,90 @@ export default function Dashboard() {
               </div>
 
               {taskData.length > 0 ? (
-                <div style={{ height: 250, marginTop: '1rem' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={taskData} margin={{ top: 5, right: 5, left: 15, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis 
-                        dataKey="dateShort" 
-                        stroke="var(--text-tertiary)" 
-                        fontSize={12} 
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis 
-                        domain={['auto', 'auto']} 
-                        stroke="var(--text-tertiary)" 
-                        fontSize={12} 
-                        tickFormatter={(value) => `$${value/1000}k`}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--panel-border)', borderRadius: 8, color: 'var(--text-primary)' }}
-                        itemStyle={{ color: 'var(--accent-color)' }}
-                        formatter={(value) => [`${value.toLocaleString()} TWD`, 'Price']}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="priceValue" 
-                        stroke="var(--accent-color)" 
-                        strokeWidth={3}
-                        dot={{ r: 4, strokeWidth: 0, fill: 'var(--accent-color)' }} 
-                        activeDot={{ r: 6, fill: 'var(--bg-color)', stroke: 'var(--accent-color)', strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                <>
+                  <div style={{ height: 200, marginTop: '1rem' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={taskData} margin={{ top: 5, right: 5, left: 15, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <XAxis 
+                          dataKey="dateShort" 
+                          stroke="var(--text-tertiary)" 
+                          fontSize={12} 
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis 
+                          domain={['auto', 'auto']} 
+                          stroke="var(--text-tertiary)" 
+                          fontSize={12} 
+                          tickFormatter={(value) => `$${value/1000}k`}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--panel-border)', borderRadius: 8, color: 'var(--text-primary)' }}
+                          itemStyle={{ color: 'var(--accent-color)' }}
+                          formatter={(value) => [`${value.toLocaleString()} TWD`, 'Price']}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="priceValue" 
+                          stroke="var(--accent-color)" 
+                          strokeWidth={3}
+                          dot={{ r: 4, strokeWidth: 0, fill: 'var(--accent-color)' }} 
+                          activeDot={{ r: 6, fill: 'var(--bg-color)', stroke: 'var(--accent-color)', strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Enhanced Flight Details */}
+                  {taskData[taskData.length - 1].airline && (
+                    <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--panel-border)' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>去程 (Outbound)</div>
+                          <div style={{ fontWeight: 500 }}>{taskData[taskData.length - 1].airline}</div>
+                          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                            {taskData[taskData.length - 1].departure_time} → {taskData[taskData.length - 1].arrival_time}
+                          </div>
+                          {taskData[taskData.length - 1].outbound_layovers && (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--accent-color)', marginTop: '4px' }}>
+                              Layovers: {taskData[taskData.length - 1].outbound_layovers}
+                            </div>
+                          )}
+                        </div>
+
+                        {taskData[taskData.length - 1].return_airline && (
+                          <div style={{ flex: 1, minWidth: '200px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>回程 (Return)</div>
+                            <div style={{ fontWeight: 500 }}>{taskData[taskData.length - 1].return_airline}</div>
+                            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                              {taskData[taskData.length - 1].return_departure_time} → {taskData[taskData.length - 1].return_arrival_time}
+                            </div>
+                            {taskData[taskData.length - 1].return_layovers && (
+                              <div style={{ fontSize: '0.75rem', color: 'var(--accent-color)', marginTop: '4px' }}>
+                                Layovers: {taskData[taskData.length - 1].return_layovers}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <a 
+                          href={taskData[taskData.length - 1].search_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="button button-primary"
+                          style={{ textDecoration: 'none', fontSize: '0.875rem' }}
+                        >
+                          Book Now on Google Flights
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: 8, border: '1px dashed var(--panel-border)', color: 'var(--text-secondary)' }}>
                   No flight records available yet.

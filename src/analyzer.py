@@ -49,21 +49,57 @@ class FlightAnalyzer:
         new_row = {
             "timestamp": timestamp,
             "airline": cheapest_today.get("airline"),
+            "return_airline": cheapest_today.get("return_airline"),
             "origin": origin,
             "destination": dest,
             "departure_date": dep_date,
             "return_date": ret_date,
+            "departure_time": cheapest_today.get("departure_time"),
+            "arrival_time": cheapest_today.get("arrival_time"),
+            "return_departure_time": cheapest_today.get("return_departure_time"),
+            "return_arrival_time": cheapest_today.get("return_arrival_time"),
+            "outbound_layovers": cheapest_today.get("outbound_layovers"),
+            "return_layovers": cheapest_today.get("return_layovers"),
             "stops": cheapest_today.get("stops"),
-            "duration_outbound": cheapest_today.get("duration"),
+            "duration": cheapest_today.get("duration"),
             "price": cheapest_today.get("price"),
             "currency": cheapest_today.get("currency"),
             "is_lowest": is_lowest,
-            "search_url": cheapest_today.get("search_url")
+            "search_url": cheapest_today.get("search_url"),
+            "booking_token": cheapest_today.get("booking_token")
         }
         
         new_df = pd.DataFrame([new_row])
         if os.path.exists(csv_path):
-            new_df.to_csv(csv_path, mode='a', header=False, index=False)
+            try:
+                # Attempt to read existing data
+                try:
+                    existing_df = pd.read_csv(csv_path)
+                except Exception:
+                    # Fallback if file is corrupted due to mismatched columns
+                    logging.warning(f"CSV {csv_path} seems corrupted. Attempting recovery...")
+                    existing_df = pd.read_csv(csv_path, on_bad_lines='skip')
+                
+                if not all(col in existing_df.columns for col in new_row.keys()):
+                    logging.info(f"Migrating CSV schema for {csv_path}...")
+                    # Ensure all new columns exist in existing_df
+                    for col in new_row.keys():
+                        if col not in existing_df.columns:
+                            existing_df[col] = ""
+                    
+                    # Also handle columns that might have been renamed (e.g. duration_outbound -> duration)
+                    if 'duration_outbound' in existing_df.columns and 'duration' in existing_df.columns:
+                         existing_df['duration'] = existing_df['duration'].fillna(existing_df['duration_outbound'])
+                    
+                    # Reorder to match new schema
+                    existing_df = existing_df[list(new_row.keys())]
+                    combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+                    combined_df.to_csv(csv_path, index=False)
+                else:
+                    new_df.to_csv(csv_path, mode='a', header=False, index=False)
+            except Exception as e:
+                logging.error(f"Error migrating/appending to {csv_path}: {e}")
+                new_df.to_csv(csv_path, mode='w', header=True, index=False)
         else:
             # Create new with header
             new_df.to_csv(csv_path, mode='w', header=True, index=False)
@@ -74,7 +110,8 @@ class FlightAnalyzer:
             "historical_highest": historical_max_price if historical_max_price > 0 else cheapest_today['price'],
             "historical_avg": avg_price if avg_price > 0 else cheapest_today['price'],
             "historical_lowest_diff": cheapest_today['price'] - historical_min_price if historical_min_price != float('inf') else 0,
-            "search_url": cheapest_today.get("search_url")
+            "search_url": cheapest_today.get("search_url"),
+            "best_flight_meta": new_row
         }
             
         return is_lowest, new_row, trend_data
@@ -107,21 +144,39 @@ class FlightAnalyzer:
         new_row = {
             "timestamp": timestamp,
             "airline": "",
+            "return_airline": "",
             "origin": origin,
             "destination": dest,
             "departure_date": dep_date,
             "return_date": ret_date,
+            "departure_time": "",
+            "arrival_time": "",
+            "return_departure_time": "",
+            "return_arrival_time": "",
+            "outbound_layovers": "",
+            "return_layovers": "",
             "stops": "",
-            "duration_outbound": "",
+            "duration": "",
             "price": "", # empty to act as null in CSV
             "currency": "TWD",
             "is_lowest": False,
-            "search_url": ""
+            "search_url": "",
+            "booking_token": ""
         }
         
         new_df = pd.DataFrame([new_row])
         if os.path.exists(csv_path):
-            new_df.to_csv(csv_path, mode='a', header=False, index=False)
+            try:
+                existing_df = pd.read_csv(csv_path)
+                if not all(col in existing_df.columns for col in new_row.keys()):
+                    logging.info(f"Migrating CSV schema for {csv_path} (Empty Record)...")
+                    combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+                    combined_df.to_csv(csv_path, index=False)
+                else:
+                    new_df.to_csv(csv_path, mode='a', header=False, index=False)
+            except Exception as e:
+                logging.error(f"Error migrating/appending empty record to {csv_path}: {e}")
+                new_df.to_csv(csv_path, mode='w', header=True, index=False)
         else:
             new_df.to_csv(csv_path, mode='w', header=True, index=False)
             
