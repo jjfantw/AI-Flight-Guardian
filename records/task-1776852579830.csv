@@ -1,2 +1,3 @@
 timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest,search_url
 2026-04-23T01:01:05.951028+00:00,台灣虎航,TPE,KIX,2026-11-22,2026-11-29,0,2h15m,9261,TWD,False,https://www.google.com/travel/flights
+2026-04-23T02:20:07.361132+00:00,台灣虎航,TPE,KIX,2026-11-22,2026-11-29,0,2h15m,9266,TWD,False,https://www.google.com/travel/flights

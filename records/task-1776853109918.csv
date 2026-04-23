@@ -1,2 +1,3 @@
 timestamp,airline,origin,destination,departure_date,return_date,stops,duration_outbound,price,currency,is_lowest,search_url
 2026-04-23T01:01:09.709015+00:00,,TPE,KIX,2027-04-02,2027-04-11,,,,TWD,False,
+2026-04-23T02:20:11.580962+00:00,,TPE,KIX,2027-04-02,2027-04-11,,,,TWD,False,
