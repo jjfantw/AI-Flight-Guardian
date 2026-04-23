@@ -3,3 +3,4 @@ timestamp,airline,return_airline,origin,destination,departure_date,return_date,d
 2026-04-23T02:36:16.844162+00:00,BR (EVA Air),CI (China Airlines),TPE,KIX,2026-11-22,2026-11-29,2026-11-22 08:48,2026-11-22 21:40,2026-11-29 10:33,2026-11-29 23:25,,HKG,2,15h32m,25753,TWD,True,https://www.google.com/search?q=flights+from+TPE+to+KIX+on+2026-11-22+to+2026-11-29,mock_token_6460
 2026-04-23T02:45:42.872052+00:00,台灣虎航,,TPE,KIX,2026-11-22,2026-11-29,2026-11-22 14:40,2026-11-22 17:55,,,,,0,2h15m,9266,TWD,True,https://www.google.com/travel/flights,
 2026-04-23T03:38:24.831008+00:00,台灣虎航,,TPE,KIX,2026-11-22,2026-11-29,2026-11-22 14:40,2026-11-22 17:55,,,,,0,2h15m,8719,TWD,True,https://www.google.com/travel/flights,
+2026-04-23T05:42:27.255743+00:00,台灣虎航,,TPE,KIX,2026-11-21,2026-11-29,2026-11-20 14:40,2026-11-20 17:55,,,,,0,2h15m,8719,TWD,False,https://www.google.com/travel/flights,
