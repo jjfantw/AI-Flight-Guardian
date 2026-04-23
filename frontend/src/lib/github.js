@@ -126,3 +126,17 @@ export const commitWorkflow = async (workflowContent, sha) => {
     sha,
   });
 };
+
+export const triggerWorkflow = async () => {
+  const { token, owner, repo } = getCredentials();
+  if (!token) throw new Error("GitHub PAT is required to trigger workflow.");
+
+  const octokit = new Octokit({ auth: token });
+  
+  await octokit.rest.actions.createWorkflowDispatch({
+    owner,
+    repo,
+    workflow_id: 'scraper.yml',
+    ref: 'main',
+  });
+};

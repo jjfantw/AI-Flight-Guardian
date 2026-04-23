@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { fetchTasks, fetchRecords } from '../lib/github';
+import { fetchTasks, fetchRecords, triggerWorkflow } from '../lib/github';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Plane, AlertTriangle, TrendingDown } from 'lucide-react';
+import { Plane, AlertTriangle, TrendingDown, RefreshCw, CheckCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [records, setRecords] = useState({});
   const [loading, setLoading] = useState(true);
+  const [triggering, setTriggering] = useState(false);
+  const [triggerStatus, setTriggerStatus] = useState(null);
 
   useEffect(() => {
     async function loadData() {
@@ -46,6 +48,21 @@ export default function Dashboard() {
     loadData();
   }, []);
 
+  const handleTrigger = async () => {
+    setTriggering(true);
+    setTriggerStatus(null);
+    try {
+      await triggerWorkflow();
+      setTriggerStatus('success');
+      setTimeout(() => setTriggerStatus(null), 3000);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to trigger workflow: " + e.message);
+    } finally {
+      setTriggering(false);
+    }
+  };
+
   if (loading) return <div className="container" style={{ textAlign: 'center', marginTop: '4rem' }}>Loading Flight Data...</div>;
 
   return (
@@ -55,6 +72,21 @@ export default function Dashboard() {
           <Plane className="header-icon" />
           <h2>Flight Price Dashboard</h2>
         </div>
+        <button 
+          className="button button-secondary" 
+          onClick={handleTrigger} 
+          disabled={triggering}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+        >
+          {triggering ? (
+            <RefreshCw size={18} className="animate-spin" />
+          ) : triggerStatus === 'success' ? (
+            <CheckCircle size={18} style={{ color: 'var(--success-color)' }} />
+          ) : (
+            <RefreshCw size={18} />
+          )}
+          {triggering ? 'Triggering...' : triggerStatus === 'success' ? 'Workflow Started' : 'Refresh Data'}
+        </button>
       </div>
       
       {tasks.filter(t => t.active).length === 0 && (
