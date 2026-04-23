@@ -4,3 +4,4 @@ timestamp,airline,return_airline,origin,destination,departure_date,return_date,d
 2026-04-23T02:45:42.872052+00:00,台灣虎航,,TPE,KIX,2026-11-22,2026-11-29,2026-11-22 14:40,2026-11-22 17:55,,,,,0,2h15m,9266,TWD,True,https://www.google.com/travel/flights,
 2026-04-23T03:38:24.831008+00:00,台灣虎航,,TPE,KIX,2026-11-22,2026-11-29,2026-11-22 14:40,2026-11-22 17:55,,,,,0,2h15m,8719,TWD,True,https://www.google.com/travel/flights,
 2026-04-23T05:42:27.255743+00:00,台灣虎航,,TPE,KIX,2026-11-21,2026-11-29,2026-11-20 14:40,2026-11-20 17:55,,,,,0,2h15m,8719,TWD,False,https://www.google.com/travel/flights,
+2026-04-23T13:44:18.219585+00:00,台灣虎航,,TPE,KIX,2026-11-21,2026-11-29,2026-11-20 14:40,2026-11-20 17:55,,,,,0,2h15m,8719,TWD,False,https://www.google.com/travel/flights,
