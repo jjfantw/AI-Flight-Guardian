@@ -15,22 +15,6 @@
       "max_stops": 1,
       "max_duration_hours": 24,
       "active": true
-    },
-    {
-      "id": "task-1776853109918",
-      "name": "2027 Sakura",
-      "origin": [
-        "TPE"
-      ],
-      "destination": [
-        "KIX"
-      ],
-      "departure_date": "2027-04-02",
-      "return_date": "2027-04-11",
-      "expand_days": 1,
-      "max_stops": 1,
-      "max_duration_hours": 24,
-      "active": true
     }
   ]
 }
